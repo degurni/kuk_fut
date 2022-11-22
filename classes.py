@@ -378,7 +378,9 @@ class Bot:
     def del_order(self, symbol, side, lever, size):
         # Создаём ордер
         f = api.order(symbol=symbol, side=side, lever=lever, size=size)
-        print(f)
+        data = Bot().read_json(para=symbol)
+        data.pop(-1)
+        Bot().write_json(data=data, para=symbol)
 
 
     def single_order(self, order_id):
@@ -417,9 +419,11 @@ class Bot:
         navar_price = navar_price.quantize(Decimal(data[-1]['price']))
         mimo_price = Decimal(mimo_price)
         mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
-        if float(navar_price) > df.Close[-1] and df.CCI[-1] > df.CCI[-2]:
+        print(navar_price)
+        if float(navar_price) < df.Close[-1] and df.CCI[-1] > df.CCI[-2]:
             Bot().debug('inform', '{} : Продаём {} контрактов'.format(para, gen_size))
             Bot().del_order(symbol=para, side='buy', lever=data[-1]['lever'], size=gen_size)
+            k = True
         elif mimo_price < df.Close[-1] and df.CCI[-1] < df.CCI[-2]:
             s = Bot().create_order(symbol=para, side='sell', lever=data[-1]['lever'], size=gen_size)
             Bot().debug('inform', '{} : добавляем {} контрактов по цене {}'.format(para, s['size'], s['price']))

@@ -29,13 +29,18 @@ def kuc_fut():
     kol_poz = 0
     # Проверяем количество открытых позиций
     poz_list = Kucoin_API().position_list()
-    if poz_list['data'] != []:
-        for i in poz_list:
-            if i['currentQty'] != 0 and i['symbol'] in paras:
-                kol_poz += 1
-            else:
-                if os.path.isfile('stock/{}.json'.format(i['symbol'])):
-                    bot.write_json([], i['symbol'])
+    # print(poz_list)
+    try:
+        if poz_list['data'] != []:
+            for i in poz_list:
+                if i['currentQty'] != 0 and i['symbol'] in paras:
+                    kol_poz += 1
+                else:
+                    if os.path.isfile('stock/{}.json'.format(i['symbol'])):
+                        bot.write_json([], i['symbol'])
+    except TypeError:
+        pass
+
 
 
 
@@ -46,6 +51,7 @@ def kuc_fut():
                 if kol_poz >= conf.max_poz:
                     break
                 poz = bot.position(symbol=para)  # проверяем открыта ли позиция
+                time.sleep(conf.sl)
                 if poz['currentQty'] == 0:
                     bot.debug('debug', '{}: Позиция ещё не открыта'.format(para))
                     df = bot.create_df(symbol=para)  # создаём датафрейм с последними свечами и сигналами индикаторов
@@ -53,6 +59,7 @@ def kuc_fut():
                         bot.debug('inform', '{}: Точка входа в LONG'.format(para))
                         # Заходим в позицию по рынку . заносим данные заказа в файл
                         t = bot.create_position(symbol=para, side='buy', lever=1, size=1)
+                        time.sleep(conf.sl)
                         if t:
                             kol_poz += 1
 
@@ -60,19 +67,27 @@ def kuc_fut():
                         bot.debug('inform', '{}: Точка входа в SHORT'.format(para))
                         # Заходим в позицию по рынку . заносим данные заказа в файл
                         t = bot.create_position(symbol=para, side='sell', lever=1, size=1)
+                        time.sleep(conf.sl)
                         if t:
                             kol_poz += 1
 
         if kol_poz:
             for para in paras:
                 poz = bot.position(symbol=para)
+                time.sleep(conf.sl)
                 if poz['currentQty'] > 0:  # если уже открыта LONG-позиция
                     df = bot.create_df(symbol=para)  # создаём датафрейм с последними свечами и сигналами индикаторов
                     t = bot.check_profit_long_1(df=df, para=para)
+                    if t:
+                        kol_poz -= 1
+                    time.sleep(conf.sl)
 
                 if poz['currentQty'] < 0:  # если уже открыта SHORT-позиция
                     df = bot.create_df(symbol=para)  # создаём датафрейм с последними свечами и сигналами индикаторов
                     t = bot.check_profit_short_1(df=df, para=para)
+                    if t:
+                        kol_poz -= 1
+                    time.sleep(conf.sl)
 
 
 

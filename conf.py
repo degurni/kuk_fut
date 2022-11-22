@@ -39,6 +39,7 @@ predel_cci = 100
 debug = 'debug'
 # пауза между циклами бота
 sleep = 15  # секунд
+sl = 1
 
 
 # {'orderId': '637c95a448071900011cae43'}
