@@ -4,7 +4,10 @@ import keys
 import os
 import pandas as pd
 import pandas_ta as ta
+import datetime
+import json
 from kucoin_futures.client import User, Trade, Market
+from decimal import Decimal
 
 
 
@@ -132,7 +135,7 @@ class Kucoin_API:
         'delevPercentage': 0.89,
         'openingTimestamp': 1669066534398,
         'currentTimestamp': 1669068367514,
-        'currentQty': 1,
+        'currentQty': 1,                            Текущее количество контрактов
         'currentCost': 3.0382,                      Текущее значение позиции
         'currentComm': 0.00182292,
         'unrealisedCost': 3.0382,                   Нереализованная стоимость
@@ -163,6 +166,96 @@ class Kucoin_API:
 
         '''
         return self.trade.get_position_details(symbol=symbol)
+
+    def position_list(self):
+        '''
+
+        :return:
+        {'id': '637c556c1f7a310001486a87',
+        'symbol': 'DOTUSDTM',
+        'autoDeposit': False,
+        'maintMarginReq': 0.01,
+        'riskLimit': 200000,
+        'realLeverage': 10.44,
+        'crossMode': False,
+        'delevPercentage': 0.91,
+        'openingTimestamp': 1669092716170,
+        'currentTimestamp': 1669095969969,
+        'currentQty': 1,                            Текущее количество контрактов
+        'currentCost': 5.179,                       Средняя цена входа
+        'currentComm': 0.0031074,
+        'unrealisedCost': 5.179,
+        'realisedGrossCost': 0.0,
+        'realisedCost': 0.0031074,
+        'isOpen': True,
+        'markPrice': 5.157,
+        'markValue': 5.157,
+        'posCost': 5.179,
+        'posCross': 0,
+        'posInit': 0.5179,
+        'posComm': 0.00341814,
+        'posLoss': 0.0,
+        'posMargin': 0.52131814,
+        'posMaint': 0.05530136,
+        'maintMargin': 0.49931814,
+        'realisedGrossPnl': 0.0,
+        'realisedPnl': -0.0031074,
+        'unrealisedPnl': -0.022,
+        'unrealisedPnlPcnt': -0.0042,
+        'unrealisedRoePcnt': -0.0425,
+        'avgEntryPrice': 5.179,
+        'liquidationPrice': 4.713,
+        'bankruptPrice': 4.661,
+        'settleCurrency': 'USDT',
+        'isInverse': False,
+        'maintainMargin': 0.01}
+        '''
+        f = self.trade.get_all_position()
+        return f
+
+    def single_order(self, order_id):
+        '''
+
+        :param order_id:
+        :return:
+        {'id': '637c95a448071900011cae43',
+        'symbol': 'DASHUSDTM',
+        'type': 'market',
+        'side': 'sell',
+        'price': None,
+        'size': 1,
+        'value': '0.3467',                              Стоимость заказа
+        'dealValue': '0.3467',                          Исполненный размер средств
+        'dealSize': 1,
+        'stp': '',
+        'stop': '',
+        'stopPriceType': '',
+        'stopTriggered': False,
+        'stopPrice': None,
+        'timeInForce': 'GTC',
+        'postOnly': False,
+        'hidden': False,
+        'iceberg': False,
+        'leverage': '1',
+        'forceHold': False,
+        'closeOrder': False,
+        'visibleSize': None,
+        'clientOid': 'a3c07de36a4711eda65c2006101a3dc6',
+        'remark': None,
+        'tags': None,
+        'isActive': False,
+        'cancelExist': False,
+        'createdAt': 1669109156000,
+        'updatedAt': 1669109157000,
+        'endAt': 1669109157000,
+        'orderTime': 1669109156957247121,
+        'settleCurrency': 'USDT',
+        'status': 'done',
+        'filledValue': '0.3467',                            Количество выполненных заказов
+        'filledSize': 1,
+        'reduceOnly': False}
+        '''
+        return self.trade.get_order_details(orderId=order_id)
 
 
 
@@ -206,6 +299,131 @@ class Bot:
         df = Indicater().cci_1(df=df)
         # df.to_csv('dat.csv')  # записываем датафрейм в файл
         return df
+
+    def tm(self):
+        """
+        :return: Возвращает текущее время в формате ЧЧ:ММ:СС
+        """
+        return datetime.datetime.now().strftime('%H:%M:%S')
+
+    def debug(self, var, inf):
+        """
+        :param var:
+        :param inf:
+        :return:
+        """
+        time = self.tm() if var == 'debug' else None
+        if conf.debug == 'inform':
+            if var == 'inform':
+                print(inf)
+            elif var == 'debug':
+                print('\033[32m {} - {} \033[0;0m'.format(time, inf))
+            else:
+                print('\033[31m {} \033[0;0m'.format(inf))
+        if conf.debug == 'debug':
+            if var == 'debug':
+                print('\033[32m {} - {} \033[0;0m'.format(time, inf))
+            else:
+                print('\033[31m {} \033[0;0m'.format(inf))
+        if conf.debug == 'error':
+            if var == 'error':
+                print('\033[31m {} \033[0;0m'.format(inf))
+
+    def write_json(self, data, para):
+        """
+        :param data:
+        :param para:
+        :return:
+        """
+        with open('stock/{}.json'.format(para), 'w') as f:
+            json.dump(data, f, indent=2)
+
+    def read_json(self, para):
+        """
+        :param para:
+        :return:
+        """
+        try:
+            with open('stock/{}.json'.format(para)) as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            Bot().write_json(data=[], para=para)
+        else:
+            return data
+
+    def position(self, symbol):
+        return api.position(symbol=symbol)
+
+    def create_position(self, symbol, side, lever, size):
+        f = Bot().create_order(symbol=symbol, side=side, lever=lever, size=size)
+        return True
+
+    def create_order(self, symbol, side, lever, size):
+        # Создаём ордер
+        f = api.order(symbol=symbol, side=side, lever=lever, size=size)
+        # Получаем информацию по ID ордера
+        s = api.single_order(order_id=f['orderId'])
+        print(s)
+        # Получаем информацию по всем ордерам этой торговой пары
+        data = Bot().read_json(para=s['symbol'])
+        inf = {'id': s['id'],
+               'symbol': s['symbol'],
+               'size': s['size'],
+               'price': s['value'],
+               'lever': s['leverage']}
+        data.append(inf)
+        Bot().write_json(data=data, para=s['symbol'])
+        return inf
+
+    def del_order(self, symbol, side, lever, size):
+        # Создаём ордер
+        f = api.order(symbol=symbol, side=side, lever=lever, size=size)
+        print(f)
+
+
+    def single_order(self, order_id):
+        f = api.single_order(order_id=order_id)
+        print(f)
+
+    def check_profit_long_1(self, df, para):
+        k = False
+        data = Bot().read_json(para)
+        gen_size = float(data[-1]['size'])  # количество контрактов в ордер
+        navar = 1 + (conf.navar / 100)
+        mimo = 1 - (conf.navar / 100)
+        navar_price = float(data[-1]['price']) * navar
+        mimo_price = float(data[-1]['price']) * mimo
+        navar_price = Decimal(navar_price)
+        navar_price = navar_price.quantize(Decimal(data[-1]['price']))
+        mimo_price = Decimal(mimo_price)
+        mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
+        if float(navar_price) < df.Close[-1] and df.CCI[-1] < df.CCI[-2]:
+            Bot().debug('inform', '{} : Продаём {} контрактов'.format(para, gen_size))
+            Bot().del_order(symbol=para, side='sell', lever=data[-1]['lever'], size=gen_size)
+        elif mimo_price > df.Close[-1] and df.CCI[-1] > df.CCI[-2]:
+            s = Bot().create_order(symbol=para, side='buy', lever=data[-1]['lever'], size=gen_size)
+            Bot().debug('inform', '{} : добавляем {} контрактов по цене {}'.format(para, s['size'], s['price']))
+
+
+    def check_profit_short_1(self, df, para):
+        k = False
+        data = Bot().read_json(para)
+        gen_size = float(data[-1]['size'])  # количество контрактов в ордер
+        navar = 1 - (conf.navar / 100)
+        mimo = 1 + (conf.navar / 100)
+        navar_price = float(data[-1]['price']) * navar
+        mimo_price = float(data[-1]['price']) * mimo
+        navar_price = Decimal(navar_price)
+        navar_price = navar_price.quantize(Decimal(data[-1]['price']))
+        mimo_price = Decimal(mimo_price)
+        mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
+        if float(navar_price) > df.Close[-1] and df.CCI[-1] > df.CCI[-2]:
+            Bot().debug('inform', '{} : Продаём {} контрактов'.format(para, gen_size))
+            Bot().del_order(symbol=para, side='buy', lever=data[-1]['lever'], size=gen_size)
+        elif mimo_price < df.Close[-1] and df.CCI[-1] < df.CCI[-2]:
+            s = Bot().create_order(symbol=para, side='sell', lever=data[-1]['lever'], size=gen_size)
+            Bot().debug('inform', '{} : добавляем {} контрактов по цене {}'.format(para, s['size'], s['price']))
+
 
 class Indicater:
 
