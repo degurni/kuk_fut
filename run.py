@@ -39,7 +39,12 @@ def kuc_fut():
                     if os.path.isfile('stock/{}.json'.format(i['symbol'])):
                         bot.write_json([], i['symbol'])
     except TypeError:
-        pass
+        for i in poz_list:
+            if i['currentQty'] != 0 and i['symbol'] in paras:
+                kol_poz += 1
+            else:
+                if os.path.isfile('stock/{}.json'.format(i['symbol'])):
+                    bot.write_json([], i['symbol'])
 
 
 
@@ -75,6 +80,7 @@ def kuc_fut():
             for para in paras:
                 poz = bot.position(symbol=para)
                 time.sleep(conf.sl)
+                print('currentQty - {}'.format(poz['currentQty']))
                 if poz['currentQty'] > 0:  # если уже открыта LONG-позиция
                     df = bot.create_df(symbol=para)  # создаём датафрейм с последними свечами и сигналами индикаторов
                     t = bot.check_profit_long_1(df=df, para=para)
