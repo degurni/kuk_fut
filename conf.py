@@ -27,18 +27,19 @@ tf = 5  # 1,5,15,30,60,120,240,480,720,1440,10080
 'JSTUSDTM', 'OGNUSDTM', 'TRBUSDTM', 'PERPUSDTM', 'KLAYUSDTM', 'ANKRUSDTM', 'LDOUSDTM', 'WOOUSDTM', 
 'RENUSDTM', 'CVCUSDTM', 'INJUSDTM', 'APTUSDTM', 'MASKUSDTM', 'REEFUSDTM']
 '''
-whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', ]
+whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', 'SOLUSDTM', 'CHZUSDTM']
 
 # Количество одновременных позиций
 max_poz = 1
 navar = 0.5
+perc_mod_price = 0.99  # 1%
 
 # Настройка индикатора CCI
 predel_cci = 100
 
 debug = 'debug'
 # пауза между циклами бота
-sleep = 15  # секунд
+sleep = 20  # секунд
 sl = 1
 
 

@@ -8,46 +8,12 @@ from classes import Kucoin_API, Bot
 
 bot = Bot()
 
-symbol = 'ADAUSDTM'
-
-# s = Kucoin_API().order(symbol, 'buy', '10', 1)
-#
-# s = Kucoin_API().position(symbol)
-#
-#
-# print(s)
-
 
 def kuc_fut():
     start_time = datetime.now()
     max_zakaz = 0
     paras = conf.whait_list
-    # Проверяем наличие вспомогательных файлов
-    for i in paras:
-        if not os.path.isfile('stock/{}.json'.format(i)):
-            bot.write_json([], i)
-    kol_poz = 0
-    # Проверяем количество открытых позиций
-    poz_list = Kucoin_API().position_list()
-    # print(poz_list)
-    try:
-        if poz_list['data'] != []:
-            for i in poz_list:
-                if i['currentQty'] != 0 and i['symbol'] in paras:
-                    kol_poz += 1
-                else:
-                    if os.path.isfile('stock/{}.json'.format(i['symbol'])):
-                        bot.write_json([], i['symbol'])
-    except TypeError:
-        for i in poz_list:
-            if i['currentQty'] != 0 and i['symbol'] in paras:
-                kol_poz += 1
-            else:
-                if os.path.isfile('stock/{}.json'.format(i['symbol'])):
-                    bot.write_json([], i['symbol'])
-
-
-
+    kol_poz = bot.is_file_json()  # Проверяем наличие вспомогательных файлов
 
 
     while True:
@@ -80,7 +46,6 @@ def kuc_fut():
             for para in paras:
                 poz = bot.position(symbol=para)
                 time.sleep(conf.sl)
-                print('currentQty - {}'.format(poz['currentQty']))
                 if poz['currentQty'] > 0:  # если уже открыта LONG-позиция
                     df = bot.create_df(symbol=para)  # создаём датафрейм с последними свечами и сигналами индикаторов
                     t = bot.check_profit_long_1(df=df, para=para)
@@ -95,11 +60,11 @@ def kuc_fut():
                         kol_poz -= 1
                     time.sleep(conf.sl)
 
-
-
-
-
-
+        print('=' * 75)
+        for para in paras:
+            data = bot.read_json(para)
+            if max_zakaz < len(data):
+                max_zakaz = len(data)
         new_time = datetime.now() - start_time
         nt = ((str(new_time)).split('.'))[0]
         print('Бот в работе - {} : MAX заказов - {}'.format(nt, max_zakaz))
@@ -116,7 +81,9 @@ if __name__ == '__main__':
 #     bot.debug('inform', 'Работа бота завершена')
 #     sys.exit(0)
 # except Exception as e:
+#     print(type(e))
 #     bot.debug('inform', 'Возникла непредвиденная ошибка - {}'.format(e))
 #     time.sleep(conf.sleep)
 #     bot.debug('inform', 'Перезапускаюсь...')
+#     kuc_fut()
 
