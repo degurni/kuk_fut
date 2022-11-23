@@ -29,7 +29,7 @@ def kuc_fut():
                     if df.CCI[-2] < df.CCI[-1] < (conf.predel_cci * -1):
                         bot.debug('inform', '{}: Точка входа в LONG'.format(para))
                         # Заходим в позицию по рынку . заносим данные заказа в файл
-                        t = bot.create_position(symbol=para, side='buy', lever=1, size=1)
+                        t = bot.create_position(symbol=para, side='buy', lever=conf.lever, size=1)
                         time.sleep(conf.sl)
                         if t:
                             kol_poz += 1
@@ -37,7 +37,7 @@ def kuc_fut():
                     if df.CCI[-2] > df.CCI[-1] > conf.predel_cci:
                         bot.debug('inform', '{}: Точка входа в SHORT'.format(para))
                         # Заходим в позицию по рынку . заносим данные заказа в файл
-                        t = bot.create_position(symbol=para, side='sell', lever=1, size=1)
+                        t = bot.create_position(symbol=para, side='sell', lever=conf.lever, size=1)
                         time.sleep(conf.sl)
                         if t:
                             kol_poz += 1

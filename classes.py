@@ -393,7 +393,11 @@ class Bot:
                'price': s['value'],
                'lever': s['leverage'],
                'multiplier': mult_play,
-               'mod_price': float(s['value'])}
+               'mod_price': float(s['value']),
+               'mp': float(s['value']) / 100 * conf.perc_mod_price}
+        data = Bot().read_json(para=s['symbol'])
+        data.append(inf)
+        Bot().write_json(data=data, para=s['symbol'])
         return True
 
     def create_order(self, symbol, side, lever, size):
@@ -409,7 +413,8 @@ class Bot:
                'price': s['value'],
                'lever': s['leverage'],
                'multiplier': data[-1]['multiplier'],
-               'mod_price': float(s['value'])}
+               'mod_price': float(s['value']),
+               'mp': float(s['value']) / 100 * conf.perc_mod_price}
         data.append(inf)
         Bot().write_json(data=data, para=s['symbol'])
         return inf
@@ -423,7 +428,9 @@ class Bot:
         if len(data) == 0:
             p = True
         else:
-            data[0]['mod_price'] = data[0]['mod_price'] * conf.perc_mod_price
+            data[0]['mod_price'] = data[0]['mod_price'] - data[0]['mp']
+            if data[0]['mod_price'] <= 0:
+                data.pop(0)
         Bot().write_json(data=data, para=symbol)
         return p
 
@@ -475,7 +482,7 @@ class Bot:
         navar_price = navar_price.quantize(Decimal(data[-1]['price']))
         mimo_price = Decimal(mimo_price)
         mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
-        Bot().debug('debug', 'Текущая цена - {}'.format(df.Close[-1]))
+        Bot().debug('debug', 'Текущая цена - {} CCI_1 - {} CCI_2 - {}'.format(df.Close[-1], df.CCI[-1], df.CCI[-2]))
         Bot().progress(para=para, orders=len(data), navar_price=navar_price, price_close=df.Close[-1],
                        mimo_price=mimo_price, side='short')
         if float(navar_price) > df.Close[-1] and df.CCI[-1] >= df.CCI[-2]:
@@ -507,6 +514,9 @@ class Bot:
                 z = '-'
             else:
                 lev = round((price_close - navar_price) / delen)
+                if lev > pruf:
+                    lev = pruf
+                    z = '-'
 
         elif side == 'long':
             delen = (navar_price - mimo_price) / pruf
