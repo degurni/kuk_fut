@@ -29,7 +29,7 @@ tf = 5  # 1,5,15,30,60,120,240,480,720,1440,10080
 '''
 whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', 'SOLUSDTM', 'CHZUSDTM']
 
-lever = 2  # % плечо
+lever = 5  # % плечо
 
 # Количество одновременных позиций
 max_poz = 3
