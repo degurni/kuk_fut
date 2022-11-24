@@ -32,7 +32,7 @@ whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', 'SOLUSDTM', 'CHZUSDTM']
 lever = 2  # % плечо
 
 # Количество одновременных позиций
-max_poz = 2
+max_poz = 3
 navar = 0.5
 perc_mod_price = 5  # 1%
 

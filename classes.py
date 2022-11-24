@@ -468,6 +468,7 @@ class Bot:
             s = Bot().create_order(symbol=para, side='buy', lever=data[-1]['lever'], size=gen_size)
             Bot().debug('inform', '{} : добавляем {} контрактов по цене {}'.
                         format(para, s['size'], float(s['price']) / mult_play))
+        return k
 
 
     def check_profit_short_1(self, df, para):
