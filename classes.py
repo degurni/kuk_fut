@@ -422,7 +422,7 @@ class Bot:
     def del_order(self, symbol, side, lever, size):
         p = False
         # Создаём ордер
-        f = api.order(symbol=symbol, side=side, lever=lever, size=size)
+        api.order(symbol=symbol, side=side, lever=lever, size=size)
         data = Bot().read_json(para=symbol)
         data.pop(-1)
         if len(data) == 0:
@@ -430,6 +430,7 @@ class Bot:
         else:
             data[0]['mod_price'] = data[0]['mod_price'] - data[0]['mp']
             if data[0]['mod_price'] <= 0:
+                api.order(symbol=symbol, side=side, lever=lever, size=size)
                 data.pop(0)
         Bot().write_json(data=data, para=symbol)
         return p
@@ -482,7 +483,7 @@ class Bot:
         navar_price = navar_price.quantize(Decimal(data[-1]['price']))
         mimo_price = Decimal(mimo_price)
         mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
-        Bot().debug('debug', 'Текущая цена - {} CCI_1 - {} CCI_2 - {}'.format(df.Close[-1], df.CCI[-1], df.CCI[-2]))
+        # Bot().debug('debug', 'Текущая цена - {} CCI_1 - {} CCI_2 - {}'.format(df.Close[-1], df.CCI[-1], df.CCI[-2]))
         Bot().progress(para=para, orders=len(data), navar_price=navar_price, price_close=df.Close[-1],
                        mimo_price=mimo_price, side='short')
         if float(navar_price) > df.Close[-1] and df.CCI[-1] >= df.CCI[-2]:
@@ -509,7 +510,7 @@ class Bot:
         if side == 'short':
             pr = '{}{}{}{}{}'.format(sbros, kr, para, sbros, gr)
             delen = (mimo_price - navar_price) / pruf
-            if price_close < navar_price:
+            if price_close <= navar_price:
                 lev = 0
                 z = '-'
             else:
@@ -520,7 +521,7 @@ class Bot:
 
         elif side == 'long':
             delen = (navar_price - mimo_price) / pruf
-            if price_close > navar_price:
+            if price_close >= navar_price:
                 lev = 0
                 z = '-'
             else:
