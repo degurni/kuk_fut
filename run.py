@@ -26,7 +26,7 @@ def kuc_fut():
                 if poz['currentQty'] == 0:
                     bot.debug('debug', '{}: Позиция ещё не открыта'.format(para))
                     df = bot.create_df(symbol=para)  # создаём датафрейм с последними свечами и сигналами индикаторов
-                    if df.CCI[-2] < df.CCI[-1] > (conf.predel_cci * -1):
+                    if df.CCI[-2] < df.CCI[-1] < (conf.predel_cci * -1):
                         bot.debug('inform', '{}: Точка входа в LONG'.format(para))
                         # Заходим в позицию по рынку . заносим данные заказа в файл
                         t = bot.create_position(symbol=para, side='buy', lever=conf.lever, size=1)
@@ -34,7 +34,7 @@ def kuc_fut():
                         if t:
                             kol_poz += 1
 
-                    if df.CCI[-2] > df.CCI[-1] < conf.predel_cci:
+                    if df.CCI[-2] > df.CCI[-1] > conf.predel_cci:
                         bot.debug('inform', '{}: Точка входа в SHORT'.format(para))
                         # Заходим в позицию по рынку . заносим данные заказа в файл
                         t = bot.create_position(symbol=para, side='sell', lever=conf.lever, size=1)
