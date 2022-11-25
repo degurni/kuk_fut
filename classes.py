@@ -505,9 +505,6 @@ class Bot:
         Bot().write_json(data=data, para=symbol)
         return p
 
-
-
-
     def single_order(self, order_id):
         f = api.single_order(order_id=order_id)
         print(f)
@@ -539,7 +536,6 @@ class Bot:
             Bot().debug('inform', '{} : добавляем {} контрактов по цене {}'.
                         format(para, s['size'], float(s['price']) / mult_play))
         return k
-
 
     def check_profit_short_1(self, df, para):
         k = False
