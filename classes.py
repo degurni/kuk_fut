@@ -104,6 +104,70 @@ class Kucoin_API:
             list.append(i['symbol'])
         return list
 
+    def contract(self, symbol):
+        '''
+        Получаем информацию о текущей торговой паре
+        :param symbol:
+        :return:
+        {'symbol': 'ADAUSDTM',
+        'rootSymbol': 'USDT',
+        'type': 'FFWCSX',
+        'firstOpenDate': 1603180800000,
+        'expireDate': None,
+        'settleDate': None,
+        'baseCurrency': 'ADA',
+        'quoteCurrency': 'USDT',
+        'settleCurrency': 'USDT',
+        'maxOrderQty': 1000000,
+        'maxPrice': 1000000.0,
+        'lotSize': 1,                              минимальнй заказ в лотах
+        'tickSize': 1e-05,
+        'indexPriceTickSize': 1e-05,
+        'multiplier': 10.0,                        кол-во монет в лоте
+        'initialMargin': 0.05,
+        'maintainMargin': 0.025,
+        'maxRiskLimit': 200000,
+        'minRiskLimit': 200000,
+        'riskStep': 100000,
+        'makerFeeRate': 0.0002,                     комиссия мейкера
+        'takerFeeRate': 0.0006,                     комиссия тейкера
+        'takerFixFee': 0.0,
+        'makerFixFee': 0.0,
+        'settlementFee': None,
+        'isDeleverage': True,
+        'isQuanto': True,
+        'isInverse': False,
+        'markMethod': 'FairPrice',
+        'fairMethod': 'FundingRate',
+        'fundingBaseSymbol': '.ADAINT8H',
+        'fundingQuoteSymbol': '.USDTINT8H',
+        'fundingRateSymbol': '.ADAUSDTMFPI8H',
+        'indexSymbol': '.KADAUSDT',
+        'settlementSymbol': '',
+        'status': 'Open',
+        'fundingFeeRate': 0.0001,
+        'predictedFundingFeeRate': 0.0001,
+        'openInterest': '9324183',                 открытый интерес за сутки в лотах
+        'turnoverOf24h': 6367496.96032071,
+        'volumeOf24h': 20277500.0,
+        'markPrice': 0.31036,
+        'indexPrice': 0.31033,
+        'lastTradePrice': 0.31027,                 текущая цена в основной валюте
+        'nextFundingRateTime': 24554763,
+        'maxLeverage': 20,                         максимальное плечо
+        'sourceExchanges': ['huobi', 'Okex', 'Binance', 'Kucoin', 'Bittrex'],
+        'premiumsSymbol1M': '.ADAUSDTMPI',
+        'premiumsSymbol8H': '.ADAUSDTMPI8H',
+        'fundingBaseSymbol1M': '.ADAINT',
+        'fundingQuoteSymbol1M': '.USDTINT',
+        'lowPrice': 0.3072,
+        'highPrice': 0.31988,
+        'priceChgPct': -0.0257,
+        'priceChg': -0.0082}
+
+        '''
+        return self.market.get_contract_detail(symbol=symbol)
+
     def klines(self, symbol):
         '''
         [1668999300000,    - время        - Time
@@ -381,7 +445,13 @@ class Bot:
     def position(self, symbol):
         return api.position(symbol=symbol)
 
-    def create_position(self, symbol, side, lever, size):
+    def create_position(self, symbol, side, lever):
+        # Высчитываем кол-во лотов в ордер
+        g = api.contract(symbol=symbol)
+        size = g['lotSize']
+        size_lot = conf.size_usdt / g['lastTradePrice'] / g['multiplier'] * lever
+        if size_lot > g['lotSize']:
+            size = size_lot
         # Создаём ордер
         f = api.order(symbol=symbol, side=side, lever=lever, size=size)
         # Получаем информацию по ID ордера
@@ -390,7 +460,7 @@ class Bot:
         inf = {'id': s['id'],
                'symbol': s['symbol'],
                'size': s['size'],
-               'price': s['value'],
+               'price': str(float(s['value']) / float(s['size'])),
                'lever': s['leverage'],
                'multiplier': mult_play,
                'mod_price': float(s['value']),
@@ -410,7 +480,7 @@ class Bot:
         inf = {'id': s['id'],
                'symbol': s['symbol'],
                'size': s['size'],
-               'price': s['value'],
+               'price': str(float(s['value']) / float(s['size'])),
                'lever': s['leverage'],
                'multiplier': data[-1]['multiplier'],
                'mod_price': float(s['value']),
@@ -455,7 +525,7 @@ class Bot:
         navar_price = navar_price.quantize(Decimal(data[-1]['price']))
         mimo_price = Decimal(mimo_price)
         mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
-        Bot().debug('debug', 'Текущая цена - {}'.format(df.Close[-1]))
+        # Bot().debug('debug', 'Текущая цена - {}'.format(df.Close[-1]))
         Bot().progress(para=para, orders=len(data), navar_price=navar_price, price_close=df.Close[-1],
                        mimo_price=mimo_price, side='long')
         if float(navar_price) < df.Close[-1] and df.CCI[-1] < df.CCI[-2]:
@@ -527,6 +597,8 @@ class Bot:
                 z = '-'
             else:
                 lev = round((navar_price - price_close) / delen)
+        if lev > pruf:
+            lev = pruf
         prav = pruf - lev
 
         time = self.tm()
