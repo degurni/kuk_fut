@@ -463,7 +463,7 @@ class Bot:
                'price': str(float(s['value']) / float(s['size'])),
                'lever': s['leverage'],
                'multiplier': mult_play,
-               'mod_price': float(s['value']),
+               'mod_price': float(s['value']) / float(s['size']),
                'mp': float(s['value']) / 100 * conf.perc_mod_price}
         data = Bot().read_json(para=s['symbol'])
         data.append(inf)
@@ -483,7 +483,7 @@ class Bot:
                'price': str(float(s['value']) / float(s['size'])),
                'lever': s['leverage'],
                'multiplier': data[-1]['multiplier'],
-               'mod_price': float(s['value']),
+               'mod_price': float(s['value']) / float(s['size']),
                'mp': float(s['value']) / 100 * conf.perc_mod_price}
         data.append(inf)
         Bot().write_json(data=data, para=s['symbol'])
@@ -502,6 +502,8 @@ class Bot:
             if data[0]['mod_price'] <= 0:
                 api.order(symbol=symbol, side=side, lever=lever, size=size)
                 data.pop(0)
+            if len(data) == 0:
+                p = True
         Bot().write_json(data=data, para=symbol)
         return p
 
