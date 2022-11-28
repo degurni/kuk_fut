@@ -448,7 +448,7 @@ class Bot:
     def create_position(self, symbol, side, lever):
         # Высчитываем кол-во лотов в ордер
         g = api.contract(symbol=symbol)
-        tick_size = Decimal(str(g[['tickSize']]))
+        tick_size = str(Decimal(str(g['tickSize'])))
         size = g['lotSize']
         size_lot = conf.size_usdt / g['lastTradePrice'] / g['multiplier'] * lever
         if size_lot > g['lotSize']:
