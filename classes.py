@@ -448,6 +448,7 @@ class Bot:
     def create_position(self, symbol, side, lever):
         # Высчитываем кол-во лотов в ордер
         g = api.contract(symbol=symbol)
+        tick_size = Decimal(str(g[['tickSize']]))
         size = g['lotSize']
         size_lot = conf.size_usdt / g['lastTradePrice'] / g['multiplier'] * lever
         if size_lot > g['lotSize']:
@@ -461,6 +462,7 @@ class Bot:
                'symbol': s['symbol'],
                'size': s['size'],
                'price': str(float(s['value']) / float(s['size'])),
+               'tick_size': tick_size,
                'lever': s['leverage'],
                'multiplier': mult_play,
                'mod_price': float(s['value']) / float(s['size']),
@@ -481,6 +483,7 @@ class Bot:
                'symbol': s['symbol'],
                'size': s['size'],
                'price': str(float(s['value']) / float(s['size'])),
+               'tick_size': data[-1]['tick_size'],
                'lever': s['leverage'],
                'multiplier': data[-1]['multiplier'],
                'mod_price': float(s['value']) / float(s['size']),
@@ -521,9 +524,9 @@ class Bot:
         navar_price = float(data[-1]['price']) * navar / mult_play
         mimo_price = float(data[-1]['price']) * mimo / mult_play
         navar_price = Decimal(navar_price)
-        navar_price = navar_price.quantize(Decimal(data[-1]['price']))
+        navar_price = navar_price.quantize(Decimal(data[-1]['tick_size']))
         mimo_price = Decimal(mimo_price)
-        mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
+        mimo_price = mimo_price.quantize(Decimal(data[-1]['tick_size']))
         # Bot().debug('debug', 'Текущая цена - {}'.format(df.Close[-1]))
         Bot().progress(para=para, orders=len(data), navar_price=navar_price, price_close=df.Close[-1],
                        mimo_price=mimo_price, side='long')
@@ -533,7 +536,7 @@ class Bot:
             if s:
                 k = True
         elif mimo_price > df.Close[-1] and df.CCI[-1] > df.CCI[-2]:
-            print('navar - {}, mimo - {}, Close - {}'.format(navar_price, mimo_price, df.Close[-1]))
+            # print('navar - {}, mimo - {}, Close - {}'.format(navar_price, mimo_price, df.Close[-1]))
             s = Bot().create_order(symbol=para, side='buy', lever=data[-1]['lever'], size=gen_size)
             Bot().debug('inform', '{} : добавляем {} контрактов по цене {}'.
                         format(para, s['size'], float(s['price']) / mult_play))
@@ -549,9 +552,9 @@ class Bot:
         navar_price = float(data[-1]['price']) * navar / mult_play
         mimo_price = float(data[-1]['price']) * mimo / mult_play
         navar_price = Decimal(navar_price)
-        navar_price = navar_price.quantize(Decimal(data[-1]['price']))
+        navar_price = navar_price.quantize(Decimal(data[-1]['tick_size']))
         mimo_price = Decimal(mimo_price)
-        mimo_price = mimo_price.quantize(Decimal(data[-1]['price']))
+        mimo_price = mimo_price.quantize(Decimal(data[-1]['tick_size']))
         # Bot().debug('debug', 'Текущая цена - {} CCI_1 - {} CCI_2 - {}'.format(df.Close[-1], df.CCI[-1], df.CCI[-2]))
         Bot().progress(para=para, orders=len(data), navar_price=navar_price, price_close=df.Close[-1],
                        mimo_price=mimo_price, side='short')
@@ -589,6 +592,7 @@ class Bot:
                     z = '>'
 
         elif side == 'long':
+            # print('navar - {} | mimo - {}'.format(navar_price, mimo_price))
             delen = (navar_price - mimo_price) / pruf
             if price_close >= navar_price:
                 lev = 0

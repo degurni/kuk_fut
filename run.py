@@ -17,7 +17,7 @@ def kuc_fut():
 
 
     while True:
-        try:
+        # try:
             if kol_poz < conf.max_poz:
                 for para in paras:
                     if kol_poz >= conf.max_poz:
@@ -71,14 +71,14 @@ def kuc_fut():
             print('Бот в работе - {} : MAX заказов - {}'.format(nt, max_zakaz))
 
             time.sleep(conf.sleep)
-        except KeyboardInterrupt:
-            bot.debug('inform', 'Работа бота завершена')
-            sys.exit(0)
-        except Exception as e:
-            print(type(e))
-            bot.debug('inform', 'Возникла непредвиденная ошибка - {}'.format(e))
-            time.sleep(conf.sleep)
-            bot.debug('inform', 'Перезапускаюсь...')
+        # except KeyboardInterrupt:
+        #     bot.debug('inform', 'Работа бота завершена')
+        #     sys.exit(0)
+        # except Exception as e:
+        #     print(type(e))
+        #     bot.debug('inform', 'Возникла непредвиденная ошибка - {}'.format(e))
+        #     time.sleep(conf.sleep)
+        #     bot.debug('inform', 'Перезапускаюсь...')
 
 
 if __name__ == '__main__':
