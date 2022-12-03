@@ -466,7 +466,7 @@ class Bot:
                'lever': s['leverage'],
                'multiplier': mult_play,
                'mod_price': float(s['value']) / float(s['size']),
-               'mp': float(s['value']) / 100 * conf.perc_mod_price}
+               'mp': float(s['value']) / float(s['size']) / 100 * conf.perc_mod_price}
         data = Bot().read_json(para=s['symbol'])
         data.append(inf)
         Bot().write_json(data=data, para=s['symbol'])
@@ -487,7 +487,7 @@ class Bot:
                'lever': s['leverage'],
                'multiplier': data[-1]['multiplier'],
                'mod_price': float(s['value']) / float(s['size']),
-               'mp': float(s['value']) / 100 * conf.perc_mod_price}
+               'mp': float(s['value']) / float(s['size']) / 100 * conf.perc_mod_price}
         data.append(inf)
         Bot().write_json(data=data, para=s['symbol'])
         return inf

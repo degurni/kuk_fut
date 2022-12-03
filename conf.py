@@ -30,12 +30,12 @@ tf = 5  # 1,5,15,30,60,120,240,480,720,1440,10080
 whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', 'SOLUSDTM', 'CHZUSDTM']
 
 size_usdt = 0.5
-lever = 10  # % плечо
+lever = 20  # % плечо
 
 # Количество одновременных позиций
 max_poz = 3
 navar = 0.5
-perc_mod_price = 5  # 1%
+perc_mod_price = 2  # 2% max = 5
 
 # Настройка индикатора CCI
 predel_cci = 100
