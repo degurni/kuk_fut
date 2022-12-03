@@ -27,13 +27,14 @@ tf = 5  # 1,5,15,30,60,120,240,480,720,1440,10080
 'JSTUSDTM', 'OGNUSDTM', 'TRBUSDTM', 'PERPUSDTM', 'KLAYUSDTM', 'ANKRUSDTM', 'LDOUSDTM', 'WOOUSDTM', 
 'RENUSDTM', 'CVCUSDTM', 'INJUSDTM', 'APTUSDTM', 'MASKUSDTM', 'REEFUSDTM']
 '''
-whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', 'SOLUSDTM', 'CHZUSDTM']
+whait_list = ['ADAUSDTM', 'DASHUSDTM', 'XEMUSDTM', 'SOLUSDTM', 'CHZUSDTM', 'DYDXUSDTM', 'LINKUSDTM',
+              'UNIUSDTM', 'DOTUSDTM', 'SUSHIUSDTM']
 
 size_usdt = 0.5
 lever = 20  # % плечо
 
 # Количество одновременных позиций
-max_poz = 3
+max_poz = 5
 navar = 0.5
 perc_mod_price = 2  # 2% max = 5
 
