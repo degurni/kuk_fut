@@ -450,6 +450,8 @@ class Bot:
         g = api.contract(symbol=symbol)
         tick_size = str(Decimal(str(g['tickSize'])))
         size = g['lotSize']
+        if g['maxLeverage'] < lever:
+            lever = g['maxLeverage']
         size_lot = conf.size_usdt / g['lastTradePrice'] / g['multiplier'] * lever
         if size_lot > g['lotSize']:
             size = size_lot
